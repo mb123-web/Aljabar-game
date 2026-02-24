@@ -3,29 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ambatron - The Smart Calculator</title>
+    <title>Ambatron Luxe - The Smart Calculator</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.8.0/math.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700&display=swap');
 
         :root {
-            --bg: #0b0e14;
-            --card-bg: rgba(23, 25, 30, 0.6);
-            --primary: #6366f1;
-            --accent: #a5b4fc;
+            --bg: #05070a;
+            --card: rgba(17, 19, 24, 0.8);
+            --primary: #818cf8;
+            --accent: #c7d2fe;
             --text: #ffffff;
-            --text-dim: #64748b;
-            --success: #10b981;
-            --error: #f43f5e;
+            --text-dim: #94a3b8;
+            --success: #34d399;
+            --error: #fb7185;
+            --glow: rgba(129, 140, 248, 0.2);
         }
 
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
             background: var(--bg);
-            /* Gradasi latar belakang halus */
             background-image: 
-                radial-gradient(circle at 0% 0%, rgba(99, 102, 241, 0.15) 0%, transparent 35%),
-                radial-gradient(circle at 100% 100%, rgba(165, 180, 252, 0.1) 0%, transparent 35%);
+                radial-gradient(circle at 20% 20%, rgba(99, 102, 241, 0.1) 0%, transparent 40%),
+                radial-gradient(circle at 80% 80%, rgba(34, 211, 238, 0.05) 0%, transparent 40%);
             color: var(--text);
             display: flex;
             justify-content: center;
@@ -33,164 +33,156 @@
             min-height: 100vh;
             margin: 0;
             overflow: hidden;
+            perspective: 1200px; /* Penting untuk efek 3D Mouse */
         }
 
-        .container {
+        .main-wrapper {
             position: relative;
             width: 90%;
             max-width: 420px;
-            perspective: 1000px;
+            height: 650px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transform-style: preserve-3d;
         }
 
         .glass-card {
-            background: var(--card-bg);
-            backdrop-filter: blur(25px) saturate(180%);
-            -webkit-backdrop-filter: blur(25px) saturate(180%);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 35px;
-            padding: 35px;
-            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.6);
-            transition: all 0.8s cubic-bezier(0.23, 1, 0.32, 1);
-        }
-
-        /* Efek Fade Estetik */
-        .page-transition {
-            transition: opacity 0.6s ease, transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), filter 0.6s ease;
-        }
-
-        .hidden {
-            opacity: 0;
-            filter: blur(15px);
-            transform: scale(0.92) translateY(15px);
-            pointer-events: none;
             position: absolute;
             width: 100%;
-            left: 0;
-            top: 0;
+            background: var(--card);
+            backdrop-filter: blur(30px) saturate(150%);
+            -webkit-backdrop-filter: blur(30px) saturate(150%);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 40px;
+            padding: 40px;
+            box-shadow: 0 40px 80px rgba(0, 0, 0, 0.8);
+            display: flex;
+            flex-direction: column;
+            box-sizing: border-box;
+            will-change: transform;
+            /* Transisi transform cepat untuk mouse, lambat untuk switch page */
+            transition: opacity 0.8s ease, filter 0.8s ease, transform 0.1s ease-out;
+        }
+
+        /* --- Animasi Transisi Halaman --- */
+        .hidden {
+            opacity: 0;
+            transform: translateY(30px) rotateX(-10deg) scale(0.9) !important;
+            filter: blur(20px);
+            pointer-events: none;
+            z-index: 0;
         }
 
         .visible {
             opacity: 1;
-            filter: blur(0);
-            transform: scale(1) translateY(0);
-            position: relative;
+            z-index: 1;
         }
 
-        h2 { 
-            font-weight: 600; 
-            font-size: 1.8rem;
-            margin-bottom: 30px; 
+        h2 {
+            font-weight: 700;
+            font-size: 2rem;
+            margin: 0 0 30px 0;
             text-align: center;
-            background: linear-gradient(to bottom, #fff, #94a3b8);
+            background: linear-gradient(135deg, #fff 0%, var(--accent) 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
 
-        /* --- DISPLAY AREA --- */
-        .display-area {
+        /* --- DISPLAY --- */
+        .display-container {
             background: rgba(0, 0, 0, 0.3);
             padding: 25px;
-            border-radius: 24px;
-            margin-bottom: 30px;
+            border-radius: 25px;
+            margin-bottom: 25px;
             border: 1px solid rgba(255,255,255,0.03);
-            text-align: right;
         }
 
-        input {
+        #input {
             width: 100%;
             background: transparent;
             border: none;
             color: var(--text-dim);
             font-size: 1rem;
-            outline: none;
             text-align: right;
+            outline: none;
         }
 
         #result {
-            font-size: 2.2rem;
-            font-weight: 600;
-            color: var(--text);
-            margin-top: 10px;
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: white;
+            text-align: right;
+            margin-top: 5px;
             letter-spacing: -1px;
         }
 
         /* --- BUTTONS --- */
-        .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+        .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; flex: 1; }
 
         button {
-            height: 65px;
             border-radius: 20px;
             border: none;
-            background: rgba(255, 255, 255, 0.04);
+            background: rgba(255, 255, 255, 0.03);
             color: var(--text);
             font-size: 1.2rem;
-            font-weight: 400;
+            font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.3s ease;
         }
 
         button:hover {
             background: rgba(255, 255, 255, 0.1);
-            transform: translateY(-4px);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+            transform: translateY(-3px) translateZ(20px); /* Efek pop up tombol */
         }
 
-        button:active { transform: scale(0.95); }
-
-        .btn-op { color: var(--accent); background: rgba(99, 102, 241, 0.1); }
-        .btn-eq { background: var(--primary); box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4); grid-column: span 2; }
-        .btn-eq:hover { background: #818cf8; }
+        .btn-op { color: var(--primary); background: rgba(129, 140, 248, 0.05); }
+        .btn-eq { 
+            background: var(--primary); 
+            grid-column: span 2; 
+            box-shadow: 0 10px 30px var(--glow);
+            width: 100%;
+            box-sizing: border-box;
+        }
 
         /* --- GAME UI --- */
-        .btn-diff {
-            width: 100%;
-            margin-bottom: 15px;
-            height: 60px;
-            background: rgba(255,255,255,0.03);
-            border: 1px solid rgba(255,255,255,0.05);
-            padding: 0 25px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .q-text { font-size: 2.5rem; font-weight: 600; margin: 40px 0; color: #fff; }
+        .q-text { font-size: 2.8rem; font-weight: 700; margin: 40px 0; text-align: center; }
         
         .ans-input {
-    width: 100%; /* Lebar penuh */
-    padding: 20px;
-    border-radius: 20px;
-    border: 1px solid rgba(255,255,255,0.1);
-    background: rgba(0,0,0,0.4);
-    color: #fff;
-    text-align: center;
-    font-size: 1.5rem;
-    margin-bottom: 20px;
-    outline: none;
-    /* TAMBAHKAN BARIS DI BAWAH INI */
-    box-sizing: border-box; 
-    display: block;
-}
-        .link-switch {
-            display: block;
+            width: 100%;
+            padding: 22px;
+            border-radius: 24px;
+            border: 1px solid rgba(255,255,255,0.1);
+            background: rgba(0,0,0,0.4);
+            color: #fff;
             text-align: center;
-            margin-top: 35px;
-            font-size: 0.85rem;
+            font-size: 1.8rem;
+            margin-bottom: 25px;
+            outline: none;
+            box-sizing: border-box;
+            display: block;
+        }
+
+        .link-switch {
+            text-align: center;
+            margin-top: 30px;
+            font-size: 0.8rem;
+            font-weight: 700;
             color: var(--text-dim);
-            text-transform: uppercase;
             letter-spacing: 2px;
+            text-transform: uppercase;
             cursor: pointer;
             transition: 0.3s;
         }
-        .link-switch:hover { color: #fff; letter-spacing: 3px; }
+        .link-switch:hover { color: white; letter-spacing: 3px; }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <div id="calc-section" class="glass-card page-transition visible">
-        <h2>Ambator</h2>
-        <div class="display-area">
+<div class="main-wrapper">
+    <div id="calc-section" class="glass-card visible">
+        <h2>Ambatron</h2>
+        <div class="display-container">
             <input type="text" id="input" placeholder="0" readonly>
             <div id="result">0</div>
         </div>
@@ -202,48 +194,45 @@
             <button onclick="addChar('^')">^</button><button onclick="clearAll()">C</button>
             <button class="btn-eq" onclick="calculate()">=</button>
         </div>
-        <span class="link-switch" onclick="switchView('game')">Enter Challenge</span>
+        <div class="link-switch" onclick="switchView('game')">Master Challenge →</div>
     </div>
 
-    <div id="game-section" class="glass-card page-transition hidden">
-        <div id="difficulty-selection">
-            <h2>Pilih Kesulitan</h2>
-            <button class="btn-diff" onclick="startGame('easy')">Easy <span style="font-size:0.7rem; opacity:0.5;">10 SOAL</span></button>
-            <button class="btn-diff" onclick="startGame('medium')">Medium <span style="font-size:0.7rem; opacity:0.5;">25 SOAL</span></button>
-            <button class="btn-diff" onclick="startGame('hard')">Hard <span style="font-size:0.7rem; opacity:0.5;">35 SOAL</span></button>
-            <span class="link-switch" onclick="switchView('calc')">kembali Ke Kalkulator</span>
+    <div id="game-section" class="glass-card hidden">
+        <div id="diff-menu">
+            <h2>LEVELS</h2>
+            <div style="display: flex; flex-direction: column; gap: 15px;">
+                <button style="height: 70px;" onclick="startGame('easy')">Easy Mode</button>
+                <button style="height: 70px;" onclick="startGame('medium')">Medium Mode</button>
+                <button style="height: 70px;" onclick="startGame('hard')">Ambatron Mode</button>
+            </div>
+            <div class="link-switch" style="margin-top: 50px;" onclick="switchView('calc')">← Exit Master</div>
         </div>
 
-        <div id="game-play-zone" style="display:none; text-align:center;">
-            <div id="progress-text" style="font-size:0.7rem; color:var(--text-dim); letter-spacing:2px;">Soal 1 / 10</div>
+        <div id="play-zone" style="display: none; flex-direction: column;">
+            <div id="progress" style="text-align: center; color: var(--text-dim); letter-spacing: 2px; font-size: 0.7rem;">Progress 1 / 10</div>
             <div class="q-text" id="question">12 + 5</div>
             <input type="number" class="ans-input" id="game-input" placeholder="?">
-            <div id="game-feedback" style="min-height:25px; margin-bottom:20px; font-weight:600;"></div>
-            <button class="btn-eq" style="width:100%" onclick="checkAnswer()">Konfirmasi</button>
+            <div id="feedback" style="text-align: center; min-height: 30px; font-weight: 600; margin-bottom: 20px;"></div>
+            <button class="btn-eq" style="width: 100%; height: 70px;" onclick="checkAnswer()">Konfirmasi</button>
         </div>
     </div>
 </div>
 
 <script>
-    // Transisi Halus (The "Expensive" Fade)
+    // --- 1. TRANSISI HALAMAN ---
     function switchView(target) {
         const calc = document.getElementById('calc-section');
         const game = document.getElementById('game-section');
-        
         if(target === 'game') {
             calc.classList.replace('visible', 'hidden');
-            setTimeout(() => {
-                game.classList.replace('hidden', 'visible');
-            }, 600);
+            setTimeout(() => game.classList.replace('hidden', 'visible'), 150);
         } else {
             game.classList.replace('visible', 'hidden');
-            setTimeout(() => {
-                calc.classList.replace('hidden', 'visible');
-            }, 600);
+            setTimeout(() => calc.classList.replace('hidden', 'visible'), 150);
         }
     }
 
-    // Kalkulator
+    // --- 2. LOGIKA KALKULATOR ---
     const inputField = document.getElementById('input');
     const resultField = document.getElementById('result');
     function addChar(c) { inputField.value += c; }
@@ -257,15 +246,14 @@
         } catch(e) { resultField.innerText = "Error"; }
     }
 
-    // Game Logic
+    // --- 3. LOGIKA GAME ---
     let gState = { lvl: '', cur: 1, total: 0, ans: '' };
 
     function startGame(lvl) {
-        gState.lvl = lvl;
-        gState.cur = 1;
+        gState.lvl = lvl; gState.cur = 1;
         gState.total = lvl === 'easy' ? 10 : lvl === 'medium' ? 25 : 35;
-        document.getElementById('difficulty-selection').style.display = 'none';
-        document.getElementById('game-play-zone').style.display = 'block';
+        document.getElementById('diff-menu').style.display = 'none';
+        document.getElementById('play-zone').style.display = 'flex';
         genQ();
     }
 
@@ -275,38 +263,67 @@
             let x = math.randomInt(1,20), y = math.randomInt(1,20);
             q = `${x} + ${y}`; a = x + y;
         } else if(gState.lvl === 'medium') {
-            let x = math.randomInt(5,15), y = math.randomInt(5,15);
+            let x = math.randomInt(5,20), y = math.randomInt(5,15);
             q = `${x} × ${y}`; a = x * y;
         } else {
             let x = math.randomInt(2,10);
-            q = `x + ${x} = ${x+x+5}, x?`; a = x+5;
+            q = `x + ${x} = ${x*2+5}, x?`; a = x+5;
         }
         document.getElementById('question').innerText = q;
         gState.ans = a;
-        document.getElementById('progress-text').innerText = `PROGRESS ${gState.cur} / ${gState.total}`;
+        document.getElementById('progress').innerText = `PROGRESS ${gState.cur} / ${gState.total}`;
         document.getElementById('game-input').value = '';
-        document.getElementById('game-feedback').innerText = '';
+        document.getElementById('feedback').innerText = '';
     }
 
     function checkAnswer() {
         const u = document.getElementById('game-input').value;
-        const f = document.getElementById('game-feedback');
+        const f = document.getElementById('feedback');
         if(u == gState.ans) {
-            f.innerText = "Lu Keren!!!"; f.style.color = 'var(--success)';
+            f.innerText = "LU KEREN!!!"; f.style.color = 'var(--success)';
             setTimeout(() => {
                 if(gState.cur < gState.total) { gState.cur++; genQ(); }
-                else { alert("Tantangan Selesai!"); backToCalc(); }
-            }, 600);
+                else { alert("MISI SELESAI!"); resetToMenu(); }
+            }, 800);
         } else {
-            f.innerText = "Coba Lagi, ya cuy!"; f.style.color = 'var(--error)';
+            f.innerText = "COBA LAGI, YA CUY!"; f.style.color = 'var(--error)';
         }
     }
 
-    function backToCalc() {
-        document.getElementById('difficulty-selection').style.display = 'block';
-        document.getElementById('game-play-zone').style.display = 'none';
+    function resetToMenu() {
+        document.getElementById('diff-menu').style.display = 'block';
+        document.getElementById('play-zone').style.display = 'none';
         switchView('calc');
     }
+
+    // --- 4. DYNAMIC 3D MOUSE EFFECT ---
+    const wrapper = document.querySelector('.main-wrapper');
+    const cards = document.querySelectorAll('.glass-card');
+
+    document.addEventListener('mousemove', (e) => {
+        let xAxis = (window.innerWidth / 2 - e.pageX) / 30;
+        let yAxis = (window.innerHeight / 2 - e.pageY) / 30;
+        
+        cards.forEach(card => {
+            if (card.classList.contains('visible')) {
+                card.style.transform = `rotateY(${xAxis}deg) rotateX(${yAxis}deg)`;
+            }
+        });
+    });
+
+    document.addEventListener('mouseleave', () => {
+        cards.forEach(card => {
+            card.style.transition = "all 0.6s ease";
+            card.style.transform = `rotateY(0deg) rotateX(0deg)`;
+        });
+    });
+    
+    document.addEventListener('mouseenter', () => {
+        cards.forEach(card => {
+            card.style.transition = "opacity 0.8s ease, filter 0.8s ease, transform 0.1s ease-out";
+        });
+    });
 </script>
+
 </body>
 </html>
