@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Algebro - Kalkulator & Game</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.8.0/math.js"></script>
+    <style>
+        :root { --primary: #6366f1; --bg: #0f172a; --card: #1e293b; --text: #f8fafc; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); display: flex; flex-direction: column; align-items: center; padding: 20px; }
+        .calc-card { background: var(--card); padding: 2rem; border-radius: 20px; box-shadow: 0 20px 50px rgba(0,0,0,0.3); width: 100%; max-width: 400px; margin-bottom: 20px; }
+        h1, h2 { text-align: center; color: var(--primary); margin-top: 0; }
+        .screen { background: #0f172a; padding: 15px; border-radius: 10px; margin-bottom: 20px; border: 1px solid #334155; }
+        input { width: 100%; background: transparent; border: none; color: #fff; font-size: 1.2rem; outline: none; }
+        #result { color: var(--primary); font-weight: bold; margin-top: 10px; min-height: 25px; }
+        .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+        button { padding: 12px; border: none; border-radius: 8px; background: #334155; color: white; cursor: pointer; transition: 0.2s; }
+        button:hover { background: #475569; }
+        .btn-op { background: var(--primary); }
+        .btn-equal { background: #10b981; grid-column: span 2; }
+        .btn-clear { background: #ef4444; grid-column: span 2; }
+        
+        /* Game Styles */
+        #game-section { display: none; background: #1e293b; padding: 20px; border-radius: 15px; width: 100%; max-width: 400px; border: 2px solid var(--primary); }
+        .level-btns { display: flex; gap: 5px; margin-bottom: 15px; flex-wrap: wrap; }
+        .level-btns button { flex: 1; font-size: 0.8rem; padding: 8px; }
+        #game-msg { font-weight: bold; margin-top: 10px; }
+        .wrong { color: #ef4444; }
+        .correct { color: #10b981; }
+        .link-game { color: var(--primary); text-decoration: underline; cursor: pointer; margin-top: 10px; display: block; text-align: center; }
+    </style>
+</head>
+<body>
+
+<div class="calc-card">
+    <h1>Algebro</h1>
+    <div class="screen">
+        <input type="text" id="input" placeholder="Ketik soal...">
+        <div id="result">Hasil: </div>
+    </div>
+    <div class="grid">
+        <button class="btn-clear" onclick="clearAll()">Clear</button>
+        <button onclick="addChar('(')">(</button><button onclick="addChar(')')">)</button>
+        <button onclick="addChar('7')">7</button><button onclick="addChar('8')">8</button><button onclick="addChar('9')">9</button><button class="btn-op" onclick="addChar('/')">÷</button>
+        <button onclick="addChar('4')">4</button><button onclick="addChar('5')">5</button><button onclick="addChar('6')">6</button><button class="btn-op" onclick="addChar('*')">×</button>
+        <button onclick="addChar('1')">1</button><button onclick="addChar('2')">2</button><button onclick="addChar('3')">3</button><button class="btn-op" onclick="addChar('-')">-</button>
+        <button onclick="addChar('0')">0</button><button onclick="addChar('.')">.</button><button onclick="addChar('x')">x</button><button class="btn-op" onclick="addChar('+')">+</button>
+        <button onclick="addChar('^')">^</button><button onclick="addChar('sqrt(')">√</button>
+        <button class="btn-equal" onclick="calculate()">HITUNG</button>
+    </div>
+    <a class="link-game" onclick="toggleGame()">Main Game Matematika Random?</a>
+</div>
+
+<div id="game-section">
+    <h2>Math Challenge</h2>
+    <div class="level-btns">
+        <button style="background:#10b981" onclick="startGame('easy')">Easy (10)</button>
+        <button style="background:#f59e0b" onclick="startGame('medium')">Medium (25)</button>
+        <button style="background:#ef4444" onclick="startGame('hard')">Hard (35)</button>
+        <button style="background:#7c3aed" onclick="startGame('impossible')">IMPOSSIBLE (50)</button>
+    </div>
+    
+    <div id="game-play" style="display:none">
+        <p id="game-stats">Level: - | Soal: 0/0</p>
+        <h3 id="question" style="font-size: 1.5rem; background:#0f172a; padding:15px; border-radius:8px; text-align:center;">?</h3>
+        <input type="text" id="game-answer" placeholder="Jawabanmu..." style="border:1px solid #334155; padding:10px; border-radius:5px; margin-bottom:10px;">
+        <button class="btn-equal" style="width:100%" onclick="checkAnswer()">Jawab</button>
+        <p id="game-msg"></p>
+    </div>
+</div>
+
+<script>
+    // --- LOGIKA KALKULATOR ---
+    const inputField = document.getElementById('input');
+    const resultField = document.getElementById('result');
+    function addChar(c) { inputField.value += c; }
+    function clearAll() { inputField.value = ''; resultField.innerText = 'Hasil: '; }
+    function calculate() {
+        try {
+            const val = inputField.value;
+            const res = val.includes('x') || val.includes('y') ? math.simplify(val).toString() : math.evaluate(val);
+            resultField.innerText = "Hasil: " + res;
+        } catch { resultField.innerText = "Error!"; }
+    }
+
+    // --- LOGIKA GAME ---
+    let currentLevel = '';
+    let currentQuestion = 0;
+    let totalQuestions = 0;
+    let correctAnswer = '';
+
+    function toggleGame() {
+        const gs = document.getElementById('game-section');
+        gs.style.display = gs.style.display === 'block' ? 'none' : 'block';
+    }
+
+    function startGame(lvl) {
+        currentLevel = lvl;
+        currentQuestion = 1;
+        totalQuestions = lvl === 'easy' ? 10 : lvl === 'medium' ? 25 : lvl === 'hard' ? 35 : 50;
+        document.getElementById('game-play').style.display = 'block';
+        nextQuestion();
+    }
+
+    function generateQuestion() {
+        let a = Math.floor(Math.random() * 10) + 1;
+        let b = Math.floor(Math.random() * 10) + 1;
+        let ops = ['+', '-', '*', '/'];
+        
+        if(currentLevel === 'medium' || currentLevel === 'hard' || currentLevel === 'impossible') {
+            ops.push('^'); a = Math.floor(Math.random() * 15) + 1;
+        }
+        
+        let op = ops[Math.floor(Math.random() * ops.length)];
+        
+        // Aljabar untuk Hard & Impossible
+        if((currentLevel === 'hard' || currentLevel === 'impossible') && Math.random() > 0.6) {
+            let x = Math.floor(Math.random() * 5) + 1;
+            let q = `${x}x + ${a}x`;
+            return { q: q, a: (x + a) + "x" };
+        }
+
+        let expr = `${a} ${op} ${b}`;
+        let ans = math.evaluate(expr);
+        return { q: expr, a: parseFloat(ans.toFixed(2)).toString() };
+    }
+
+    function nextQuestion() {
+        let qData = generateQuestion();
+        document.getElementById('question').innerText = qData.q;
+        correctAnswer = qData.a;
+        document.getElementById('game-stats').innerText = `Level: ${currentLevel.toUpperCase()} | Soal: ${currentQuestion}/${totalQuestions}`;
+        document.getElementById('game-answer').value = '';
+        document.getElementById('game-msg').innerText = '';
+    }
+
+    function checkAnswer() {
+        let userAns = document.getElementById('game-answer').value.trim().toLowerCase();
+        let msg = document.getElementById('game-msg');
+
+        if(userAns === correctAnswer) {
+            msg.className = 'correct';
+            msg.innerText = "BENAR! Lanjut...";
+            setTimeout(() => {
+                if(currentQuestion < totalQuestions) {
+                    currentQuestion++;
+                    nextQuestion();
+                } else {
+                    alert("SELAMAT! Kamu menyelesaikan level " + currentLevel);
+                    document.getElementById('game-play').style.display = 'none';
+                }
+            }, 1000);
+        } else {
+            msg.className = 'wrong';
+            msg.innerText = "SALAH! Coba lagi sampai benar.";
+        }
+    }
+</script>
+</body>
+</html>
