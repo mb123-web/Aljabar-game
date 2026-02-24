@@ -292,13 +292,13 @@
         const u = document.getElementById('game-input').value;
         const f = document.getElementById('game-feedback');
         if(u == gState.ans) {
-            f.innerText = "Correct"; f.style.color = 'var(--success)';
+            f.innerText = "Lu Keren!!!"; f.style.color = 'var(--success)';
             setTimeout(() => {
                 if(gState.cur < gState.total) { gState.cur++; genQ(); }
                 else { alert("Challenge Completed"); backToCalc(); }
             }, 600);
         } else {
-            f.innerText = "Try again"; f.style.color = 'var(--error)';
+            f.innerText = "Coba Lagi, ya cuy!"; f.style.color = 'var(--error)';
         }
     }
 
