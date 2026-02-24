@@ -3,180 +3,222 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ambalator - Calc & Game</title>
+    <title>Ambatron - Calculator & Game</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.8.0/math.js"></script>
+    <script src="https://challenges.cloudflare.com/cdn-cgi/challenge-platform/h/g/scripts/jsd/6122d059/main.js" async defer></script>
+    
     <style>
-        :root { --primary: #6366f1; --bg: #0f172a; --card: #1e293b; --text: #f8fafc; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; overflow-x: hidden; }
-        
-        /* Animasi Fade */
-        .fade-out { opacity: 0; transform: scale(0.9); transition: all 0.5s ease; pointer-events: none; position: absolute; }
-        .fade-in { opacity: 1; transform: scale(1); transition: all 0.5s ease; }
+        :root {
+            --primary: #6366f1;
+            --bg: #0f172a;
+            --card: #1e293b;
+            --text: #f8fafc;
+            --success: #10b981;
+            --error: #ef4444;
+        }
 
-        .container { background: var(--card); padding: 2rem; border-radius: 20px; box-shadow: 0 20px 50px rgba(0,0,0,0.3); width: 100%; max-width: 400px; position: relative; }
-        
-        /* Kalkulator Style */
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            overflow-x: hidden;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 450px;
+            padding: 20px;
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+
+        .fade-out { opacity: 0; transform: scale(0.9); pointer-events: none; position: absolute; }
+        .fade-in { opacity: 1; transform: scale(1); }
+
+        .card {
+            background: var(--card);
+            padding: 2rem;
+            border-radius: 20px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+        }
+
+        /* UI Kalkulator */
         .screen { background: #0f172a; padding: 15px; border-radius: 10px; margin-bottom: 20px; border: 1px solid #334155; }
         input { width: 100%; background: transparent; border: none; color: #fff; font-size: 1.2rem; outline: none; }
         #result { color: var(--primary); font-weight: bold; margin-top: 5px; }
         .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
-        button { padding: 12px; border: none; border-radius: 8px; background: #334155; color: white; cursor: pointer; transition: 0.2s; }
+        button { padding: 15px; border: none; border-radius: 8px; background: #334155; color: white; cursor: pointer; transition: 0.2s; }
         button:hover { background: #475569; }
         .btn-op { background: var(--primary); }
-        .btn-equal { background: #10b981; grid-column: span 2; }
+        .btn-equal { background: var(--success); grid-column: span 2; }
 
-        /* Game Style */
-        #game-area { display: none; text-align: center; }
-        .level-btns { display: flex; flex-wrap: wrap; gap: 5px; justify-content: center; margin-bottom: 15px; }
-        .level-btns button { padding: 8px 12px; font-size: 0.8rem; }
-        #question { font-size: 1.8rem; margin: 20px 0; font-weight: bold; }
+        /* UI Game */
+        .game-header { text-align: center; margin-bottom: 20px; }
+        .difficulty-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .btn-diff { background: #475569; padding: 10px; }
+        .easy { border-left: 5px solid #10b981; }
+        .medium { border-left: 5px solid #f59e0b; }
+        .hard { border-left: 5px solid #ef4444; }
+        .impossible { border-left: 5px solid #7c3aed; }
+
+        #game-play-zone { display: none; text-align: center; }
+        #question { font-size: 1.8rem; margin: 20px 0; color: #fff; }
         #game-input { width: 80%; padding: 10px; border-radius: 5px; border: 1px solid var(--primary); background: #0f172a; color: white; text-align: center; font-size: 1.2rem; }
-        #game-msg { margin-top: 10px; font-weight: bold; }
-        #progress { font-size: 0.9rem; color: #94a3b8; margin-bottom: 10px; }
-        
-        .play-link { display: block; text-align: center; margin-top: 20px; color: var(--primary); text-decoration: none; font-weight: bold; cursor: pointer; }
+        #game-feedback { margin-top: 10px; font-weight: bold; }
+
+        .link-game { display: block; text-align: center; margin-top: 20px; color: var(--primary); cursor: pointer; text-decoration: underline; }
     </style>
 </head>
 <body>
 
-<div class="container" id="main-container">
-    <div id="calculator-ui" class="fade-in">
-        <h1 style="text-align: center; color: var(--primary);">Ambatron Calculator Engine</h1>
+<div id="calc-section" class="container fade-in">
+    <div class="card">
+        <h2 style="text-align:center; color: var(--primary);">Ambatron The Calc</h2>
         <div class="screen">
-            <input type="text" id="calc-input" placeholder="Ketik soal...">
-            <div id="calc-result">Hasil: </div>
+            <input type="text" id="input" placeholder="Ketik soal...">
+            <div id="result">Hasil: </div>
         </div>
         <div class="grid">
-            <button onclick="add('7')">7</button><button onclick="add('8')">8</button><button onclick="add('9')">9</button><button class="btn-op" onclick="add('/')">/</button>
-            <button onclick="add('4')">4</button><button onclick="add('5')">5</button><button onclick="add('6')">6</button><button class="btn-op" onclick="add('*')">*</button>
-            <button onclick="add('1')">1</button><button onclick="add('2')">2</button><button onclick="add('3')">3</button><button class="btn-op" onclick="add('-')">-</button>
-            <button onclick="add('0')">0</button><button onclick="add('.')">.</button><button onclick="add('x')">x</button><button class="btn-op" onclick="add('+')">+</button>
+            <button onclick="addChar('7')">7</button><button onclick="addChar('8')">8</button><button onclick="addChar('9')">9</button><button class="btn-op" onclick="addChar('/')">/</button>
+            <button onclick="addChar('4')">4</button><button onclick="addChar('5')">5</button><button onclick="addChar('6')">6</button><button class="btn-op" onclick="addChar('*')">*</button>
+            <button onclick="addChar('1')">1</button><button onclick="addChar('2')">2</button><button onclick="addChar('3')">3</button><button class="btn-op" onclick="addChar('-')">-</button>
+            <button onclick="addChar('0')">0</button><button onclick="addChar('.')">.</button><button onclick="addChar('x')">x</button><button class="btn-op" onclick="addChar('+')">+</button>
+            <button onclick="addChar('^')">^</button><button onclick="clearAll()">C</button>
             <button class="btn-equal" onclick="calculate()">HITUNG</button>
-            <button style="background:#ef4444; grid-column: span 2;" onclick="document.getElementById('calc-input').value=''">C</button>
         </div>
-        <a class="play-link" onclick="toggleGame(true)">Tes kemampuan mu!</a>
+        <span class="link-game" onclick="toggleMode('game')">Mau Test Kemampuan Mu?</span>
+        
+        <div style="margin-top:20px;" class="cf-turnstile" data-sitekey="your-site-key"></div>
     </div>
+</div>
 
-    <div id="game-area">
-        <h2 id="level-title">Pilih Kesulitan</h2>
-        <div class="level-btns" id="lvl-selectors">
-            <button onclick="startGame('easy')" style="background:#10b981">Easy</button>
-            <button onclick="startGame('medium')" style="background:#f59e0b">Medium</button>
-            <button onclick="startGame('hard')" style="background:#ef4444">Hard</button>
-            <button onclick="startGame('impossible')" style="background:#7c3aed">Impossible</button>
+<div id="game-section" class="container fade-out">
+    <div class="card">
+        <div id="difficulty-selection">
+            <h2 style="text-align:center;">Pilih Level</h2>
+            <div class="difficulty-btns">
+                <button class="btn-diff easy" onclick="startGame('easy')">Easy (10 Soal)</button>
+                <button class="btn-diff medium" onclick="startGame('medium')">Medium (25 Soal)</button>
+                <button class="btn-diff hard" onclick="startGame('hard')">Hard (35 Soal)</button>
+                <button class="btn-diff impossible" onclick="startGame('impossible')">IMPOSSIBLE (50 Soal)</button>
+            </div>
+            <span class="link-game" onclick="toggleMode('calc')">Kembali ke Kalkulator</span>
         </div>
 
-        <div id="quiz-box" style="display:none">
-            <div id="progress">Soal 1 / 10</div>
-            <div id="question">2 + 2 = ?</div>
+        <div id="game-play-zone">
+            <div class="game-header">
+                <span id="level-name">Level</span> | Soal: <span id="current-count">1</span>/<span id="total-count">10</span>
+            </div>
+            <div id="question">1 + 1</div>
             <input type="text" id="game-input" placeholder="Jawaban Anda..." autocomplete="off">
-            <div id="game-msg"></div>
-            <button onclick="checkAnswer()" style="margin-top:15px; width:100%; background:var(--primary)">Kirim Jawaban</button>
+            <div id="game-feedback"></div>
+            <button class="btn-equal" style="margin-top:20px; width:100%" onclick="checkAnswer()">JAWAB</button>
         </div>
     </div>
 </div>
 
 <script>
-    // --- LOGIKA KALKULATOR ---
-    function add(char) { document.getElementById('calc-input').value += char; }
-    function calculate() {
-        const input = document.getElementById('calc-input').value;
-        const resDiv = document.getElementById('calc-result');
-        try {
-            const evalResult = math.evaluate(input);
-            resDiv.innerText = "Hasil: " + (typeof evalResult === 'object' ? math.simplify(input) : evalResult);
-        } catch { resDiv.innerText = "Error!"; }
-    }
-
-    // --- LOGIKA GAME ---
-    let currentLevel = '';
-    let targetScore = 0;
-    let currentScore = 0;
-    let correctAnswer = null;
-
-    function toggleGame(show) {
-        const calc = document.getElementById('calculator-ui');
-        const game = document.getElementById('game-area');
-        if(show) {
+    // --- LOGIKA TRANSISI ---
+    function toggleMode(target) {
+        const calc = document.getElementById('calc-section');
+        const game = document.getElementById('game-section');
+        if(target === 'game') {
             calc.classList.replace('fade-in', 'fade-out');
-            setTimeout(() => { 
-                calc.style.display = 'none'; 
-                game.style.display = 'block';
-                game.classList.add('fade-in');
-            }, 500);
+            setTimeout(() => { game.classList.replace('fade-out', 'fade-in'); game.style.position = 'relative'; }, 800);
         } else {
             game.classList.replace('fade-in', 'fade-out');
-            setTimeout(() => {
-                game.style.display = 'none';
-                calc.style.display = 'block';
-                calc.classList.replace('fade-out', 'fade-in');
-            }, 500);
+            setTimeout(() => { calc.classList.replace('fade-out', 'fade-in'); calc.style.position = 'relative'; }, 800);
         }
     }
 
+    // --- LOGIKA KALKULATOR ---
+    const inputField = document.getElementById('input');
+    const resultField = document.getElementById('result');
+    function addChar(c) { inputField.value += c; }
+    function clearAll() { inputField.value = ''; resultField.innerText = 'Hasil: '; }
+    function calculate() {
+        try {
+            const res = math.evaluate(inputField.value);
+            resultField.innerText = "Hasil: " + (typeof res === 'object' ? math.simplify(inputField.value) : res);
+        } catch(e) { resultField.innerText = "Error!"; }
+    }
+
+    // --- LOGIKA GAME ---
+    let gameState = { level: '', current: 1, total: 0, answer: '' };
+
     function startGame(lvl) {
-        currentLevel = lvl;
-        currentScore = 1;
-        const config = { easy: 10, medium: 25, hard: 35, impossible: 50 };
-        targetScore = config[lvl];
-        document.getElementById('lvl-selectors').style.display = 'none';
-        document.getElementById('quiz-box').style.display = 'block';
-        document.getElementById('level-title').innerText = "Mode: " + lvl.toUpperCase();
+        gameState.level = lvl;
+        gameState.current = 1;
+        gameState.total = lvl === 'easy' ? 10 : lvl === 'medium' ? 25 : lvl === 'hard' ? 35 : 50;
+        
+        document.getElementById('difficulty-selection').style.display = 'none';
+        document.getElementById('game-play-zone').style.display = 'block';
+        document.getElementById('level-name').innerText = lvl.toUpperCase();
+        document.getElementById('total-count').innerText = gameState.total;
         generateQuestion();
     }
 
     function generateQuestion() {
         let q = "";
-        let ops = ['+', '-', '*'];
-        if(currentLevel !== 'easy') ops.push('/', '^');
-        
-        let op = ops[Math.floor(Math.random() * ops.length)];
-        let n1 = Math.floor(Math.random() * 10) + 1;
-        let n2 = Math.floor(Math.random() * 10) + 1;
+        let ans = "";
+        const lvl = gameState.level;
 
-        if(currentLevel === 'hard') { n1 *= 5; n2 *= 3; }
-        if(currentLevel === 'impossible') { n1 *= 15; n2 *= 12; q = `simplify(${n1}x + ${n2}x - x)`; }
-        else { q = `${n1} ${op} ${n2}`; }
+        if(lvl === 'easy') {
+            let a = math.randomInt(1, 20), b = math.randomInt(1, 20);
+            q = `${a} + ${b}`; ans = a + b;
+        } else if(lvl === 'medium') {
+            let a = math.randomInt(10, 50), b = math.randomInt(5, 15);
+            let ops = ['+', '-', '*'];
+            let op = ops[math.randomInt(0,3)];
+            q = `${a} ${op} ${b}`; ans = math.evaluate(q);
+        } else if(lvl === 'hard') {
+            let a = math.randomInt(2, 10);
+            q = `${a}^2 + ${math.randomInt(10,100)}`; ans = math.evaluate(q);
+        } else { // IMPOSSIBLE: Aljabar & Perkalian
+            let a = math.randomInt(2, 5);
+            let x = math.randomInt(2, 10);
+            q = `Selesaikan: ${a}x = ${a * x}, x=?`; ans = x;
+        }
 
-        try {
-            q = q.replace('^', '**'); // mathjs friendly
-            correctAnswer = math.evaluate(q);
-            document.getElementById('question').innerText = q.replace('**', '^') + " = ?";
-            document.getElementById('progress').innerText = `Soal ${currentScore} / ${targetScore}`;
-            document.getElementById('game-input').value = '';
-            document.getElementById('game-msg').innerText = '';
-        } catch { generateQuestion(); }
+        document.getElementById('question').innerText = q;
+        gameState.answer = ans.toString();
+        document.getElementById('current-count').innerText = gameState.current;
+        document.getElementById('game-input').value = '';
+        document.getElementById('game-feedback').innerText = '';
     }
 
     function checkAnswer() {
         const userAns = document.getElementById('game-input').value;
-        const msg = document.getElementById('game-msg');
-        
-        // Cek aljabar atau angka
-        let isCorrect = false;
-        try {
-            if(currentLevel === 'impossible') {
-                isCorrect = math.simplify(userAns).toString() === math.simplify(correctAnswer).toString();
-            } else {
-                isCorrect = parseFloat(userAns) === parseFloat(correctAnswer);
-            }
-        } catch { isCorrect = false; }
+        const feedback = document.getElementById('game-feedback');
 
-        if(isCorrect) {
-            msg.style.color = "#10b981";
-            msg.innerText = "BENAR! Lanjut...";
-            currentScore++;
-            if(currentScore > targetScore) {
-                alert("SELAMAT! Kamu menamatkan level " + currentLevel);
-                location.reload(); // Reset ke awal
-            } else {
-                setTimeout(generateQuestion, 600);
-            }
+        if(userAns == gameState.answer) {
+            feedback.style.color = 'var(--success)';
+            feedback.innerText = "BENAR!";
+            setTimeout(() => {
+                if(gameState.current < gameState.total) {
+                    gameState.current++;
+                    generateQuestion();
+                } else {
+                    alert("SELAMAT! Kamu Menaklukkan Level " + gameState.level);
+                    resetGame();
+                }
+            }, 1000);
         } else {
-            msg.style.color = "#ef4444";
-            msg.innerText = "SALAH! Coba hitung lagi.";
+            feedback.style.color = 'var(--error)';
+            feedback.innerText = "SALAH! Coba lagi sampai benar.";
         }
     }
+
+    function resetGame() {
+        document.getElementById('difficulty-selection').style.display = 'block';
+        document.getElementById('game-play-zone').style.display = 'none';
+        toggleMode('calc');
+    }
 </script>
+
 </body>
 </html>
