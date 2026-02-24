@@ -48,7 +48,7 @@
         <button onclick="addChar('^')">^</button><button onclick="addChar('sqrt(')">√</button>
         <button class="btn-equal" onclick="calculate()">HITUNG</button>
     </div>
-    <a class="link-game" onclick="toggleGame()">Main Game Matematika Random?</a>
+    <a class="link-game" onclick="toggleGame()">Mau Coba Test Kemampuan Mu?</a>
 </div>
 
 <div id="game-section">
@@ -140,7 +140,7 @@
 
         if(userAns === correctAnswer) {
             msg.className = 'correct';
-            msg.innerText = "BENAR! Lanjut...";
+            msg.innerText = "BENAR!";
             setTimeout(() => {
                 if(currentQuestion < totalQuestions) {
                     currentQuestion++;
