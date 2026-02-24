@@ -3,332 +3,279 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ambatron | The Smart Calc Pro</title>
+    <title>Ambatron Luxe | Royal Edition</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.8.0/math.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@200;400;700&display=swap');
 
         :root {
             --bg: #030407;
-            --glass: rgba(13, 15, 20, 0.7);
-            --border: rgba(255, 255, 255, 0.06);
+            --card-bg: rgba(10, 11, 15, 0.7);
             --primary: #6366f1;
-            --accent: #c7d2fe;
+            --gold: #e2b86e;
             --text: #ffffff;
             --text-dim: #64748b;
-            --success: #10b981;
-            --error: #f43f5e;
-        }
-
-        * {
-            box-sizing: border-box;
-            -webkit-font-smoothing: antialiased;
         }
 
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
-            background-color: var(--bg);
-            color: var(--text);
+            background: var(--bg);
+            margin: 0;
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            margin: 0;
             overflow: hidden;
-            position: relative;
+            color: var(--text);
         }
 
-        /* --- LUXURY BACKGROUND ANIMATION --- */
-        #aura {
+        /* --- BACKGROUND ATMOSPHERE --- */
+        .nebula {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 800px;
-            height: 800px;
-            background: radial-gradient(circle, rgba(99, 102, 241, 0.12) 0%, rgba(34, 211, 238, 0.05) 30%, transparent 70%);
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: 
+                radial-gradient(circle at 10% 10%, rgba(99, 102, 241, 0.08) 0%, transparent 40%),
+                radial-gradient(circle at 90% 90%, rgba(226, 184, 110, 0.05) 0%, transparent 40%);
+            z-index: -2;
+        }
+
+        #cursor-aura {
+            position: fixed;
+            width: 800px; height: 800px;
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.1) 0%, transparent 70%);
             border-radius: 50%;
             pointer-events: none;
             transform: translate(-50%, -50%);
             z-index: -1;
-            transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
-            filter: blur(40px);
+            transition: transform 0.15s cubic-bezier(0.23, 1, 0.32, 1);
         }
 
-        .main-container {
-            width: 100%;
-            max-width: 420px;
-            padding: 20px;
+        /* --- CONTAINER & CARDS --- */
+        .container {
             position: relative;
+            width: 90%;
+            max-width: 420px;
         }
 
-        .glass-panel {
-            background: var(--glass);
-            backdrop-filter: blur(40px) saturate(180%);
-            -webkit-backdrop-filter: blur(40px) saturate(180%);
-            border: 1px solid var(--border);
+        .glass-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(40px);
+            -webkit-backdrop-filter: blur(40px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
             border-radius: 40px;
-            padding: 40px;
-            box-shadow: 0 50px 100px -20px rgba(0, 0, 0, 0.7);
-            transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+            padding: 45px;
+            box-shadow: 0 50px 100px rgba(0, 0, 0, 0.9);
+            transition: all 1.2s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
-        /* --- TRANSITIONS --- */
-        .page-hide {
+        .hidden {
             opacity: 0;
-            transform: scale(0.92) translateY(20px);
-            filter: blur(10px);
+            filter: blur(30px) brightness(0.5);
+            transform: scale(1.1) translateY(30px);
             pointer-events: none;
             position: absolute;
-            width: calc(100% - 40px);
+            width: 100%;
         }
 
-        .page-show {
+        .visible {
             opacity: 1;
+            filter: blur(0) brightness(1);
             transform: scale(1) translateY(0);
-            filter: blur(0);
             position: relative;
         }
 
-        /* --- TYPOGRAPHY --- */
-        h1 {
-            font-weight: 700;
-            font-size: 1.5rem;
-            letter-spacing: 4px;
-            text-align: center;
-            margin: 0 0 35px 0;
+        h2 {
+            font-weight: 200;
+            letter-spacing: 8px;
             text-transform: uppercase;
-            background: linear-gradient(to bottom, #fff 0%, var(--text-dim) 100%);
+            font-size: 0.9rem;
+            text-align: center;
+            margin-bottom: 40px;
+            color: var(--gold);
+        }
+
+        /* --- LUXE UI ELEMENTS --- */
+        .display-box {
+            text-align: right;
+            margin-bottom: 40px;
+        }
+
+        #result {
+            font-size: 3.5rem;
+            font-weight: 700;
+            letter-spacing: -2px;
+            margin-top: 10px;
+            background: linear-gradient(to bottom, #fff, #94a3b8);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
 
-        /* --- DISPLAY UI --- */
-        .display-unit {
-            background: rgba(0, 0, 0, 0.4);
-            border: 1px solid rgba(255, 255, 255, 0.03);
-            border-radius: 24px;
-            padding: 24px;
-            margin-bottom: 30px;
-            text-align: right;
-        }
-
-        #input-preview {
-            font-size: 0.9rem;
-            color: var(--text-dim);
-            margin-bottom: 8px;
-            letter-spacing: 1px;
-            height: 1.2rem;
-        }
-
-        #main-output {
-            font-size: 2.4rem;
-            font-weight: 600;
-            color: white;
-            letter-spacing: -1px;
-        }
-
-        /* --- LUXURY BUTTONS --- */
-        .keypad {
+        .grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 14px;
+            gap: 15px;
         }
 
         button {
-            height: 64px;
-            border-radius: 20px;
-            border: 1px solid transparent;
-            background: rgba(255, 255, 255, 0.03);
+            height: 65px;
+            border-radius: 18px;
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            background: rgba(255, 255, 255, 0.02);
             color: var(--text);
-            font-size: 1.2rem;
-            font-weight: 500;
+            font-size: 1rem;
             cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            transition: all 0.4s;
         }
 
         button:hover {
             background: rgba(255, 255, 255, 0.08);
-            border-color: rgba(255, 255, 255, 0.1);
-            transform: translateY(-4px);
-            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3);
+            border-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-5px);
         }
 
-        button:active { transform: scale(0.96); }
-
-        .btn-prime { color: var(--primary); font-weight: 700; background: rgba(99, 102, 241, 0.05); }
-        .btn-action { 
-            background: var(--primary); 
-            grid-column: span 2; 
-            width: 100%;
+        .btn-eq {
+            grid-column: span 4;
+            background: white;
+            color: black;
             font-weight: 700;
-            box-shadow: 0 15px 30px rgba(99, 102, 241, 0.3);
-        }
-        .btn-action:hover { background: #818cf8; box-shadow: 0 20px 40px rgba(99, 102, 241, 0.4); }
-
-        /* --- GAME ENGINE UI --- */
-        .level-card {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
+            margin-top: 10px;
+            letter-spacing: 2px;
         }
 
-        .question-box {
-            font-size: 2.8rem;
-            font-weight: 700;
-            text-align: center;
-            margin: 40px 0;
-            background: linear-gradient(135deg, #fff 0%, #6366f1 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+        .btn-eq:hover {
+            background: var(--gold);
+            color: white;
         }
 
-        .input-luxe {
+        /* --- GAME SECTION --- */
+        .ans-input {
             width: 100%;
-            padding: 22px;
-            border-radius: 24px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            background: rgba(0, 0, 0, 0.3);
-            color: #fff;
+            background: transparent;
+            border: none;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            color: white;
+            font-size: 3rem;
             text-align: center;
-            font-size: 1.8rem;
-            margin-bottom: 25px;
+            padding: 20px 0;
+            margin-bottom: 30px;
             outline: none;
-            transition: 0.3s;
+            font-weight: 700;
         }
 
-        .input-luxe:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15); }
-
-        .footer-link {
-            text-align: center;
-            margin-top: 35px;
-            font-size: 0.75rem;
+        .q-text {
+            font-size: 1.2rem;
             color: var(--text-dim);
+            text-align: center;
+            letter-spacing: 2px;
+            margin-bottom: 10px;
+        }
+
+        .switch-mode {
+            text-align: center;
+            margin-top: 40px;
+            font-size: 0.7rem;
             letter-spacing: 3px;
-            text-transform: uppercase;
+            color: var(--text-dim);
             cursor: pointer;
             transition: 0.3s;
         }
-        .footer-link:hover { color: #fff; transform: translateY(-2px); }
+
+        .switch-mode:hover { color: var(--gold); }
     </style>
 </head>
 <body>
 
-    <div id="aura"></div>
+    <div class="nebula"></div>
+    <div id="cursor-aura"></div>
 
-    <div class="main-container">
-        <div id="calc-ui" class="glass-panel page-show">
-            <h1>Ambatron</h1>
-            <div class="display-unit">
-                <div id="input-preview"></div>
-                <div id="main-output">0</div>
+    <div class="container">
+        <div id="calc-section" class="glass-card visible">
+            <h2>Sophisticated Calc</h2>
+            <div class="display-box">
+                <input type="text" id="input" style="background:none; border:none; color:var(--text-dim); text-align:right; width:100%; outline:none;" placeholder="Formula" readonly>
+                <div id="result">0</div>
             </div>
-            <div class="keypad">
-                <button onclick="press('7')">7</button><button onclick="press('8')">8</button><button onclick="press('9')">9</button><button class="btn-prime" onclick="press('/')">÷</button>
-                <button onclick="press('4')">4</button><button onclick="press('5')">5</button><button onclick="press('6')">6</button><button class="btn-prime" onclick="press('*')">×</button>
-                <button onclick="press('1')">1</button><button onclick="press('2')">2</button><button onclick="press('3')">3</button><button class="btn-prime" onclick="press('-')">−</button>
-                <button onclick="press('0')">0</button><button onclick="press('.')">.</button><button onclick="clearScr()">C</button><button class="btn-prime" onclick="press('+')">+</button>
-                <button class="btn-action" onclick="exec()">=</button>
+            <div class="grid">
+                <button onclick="addChar('7')">7</button><button onclick="addChar('8')">8</button><button onclick="addChar('9')">9</button><button onclick="addChar('/')">÷</button>
+                <button onclick="addChar('4')">4</button><button onclick="addChar('5')">5</button><button onclick="addChar('6')">6</button><button onclick="addChar('*')">×</button>
+                <button onclick="addChar('1')">1</button><button onclick="addChar('2')">2</button><button onclick="addChar('3')">3</button><button onclick="addChar('-')">−</button>
+                <button onclick="clearAll()">C</button><button onclick="addChar('0')">0</button><button onclick="addChar('.')">.</button><button onclick="addChar('+')">+</button>
+                <button class="btn-eq" onclick="calculate()">EXECUTE</button>
             </div>
-            <div class="footer-link" onclick="route('game')">Mastery Challenge →</div>
+            <div class="switch-mode" onclick="switchView('game')">Enter The Challenge</div>
         </div>
 
-        <div id="game-ui" class="glass-panel page-hide">
-            <div id="menu-view">
-                <h1>Difficulty</h1>
-                <div class="level-card">
-                    <button onclick="initGame('easy')">EASY MODE</button>
-                    <button onclick="initGame('medium')">ELITE MODE</button>
-                    <button onclick="initGame('hard')">AMBATRON</button>
-                </div>
-                <div class="footer-link" onclick="route('calc')">← Return to Suite</div>
+        <div id="game-section" class="glass-card hidden">
+            <div id="game-menu">
+                <h2>Select Proficiency</h2>
+                <button style="width:100%; margin-bottom:15px;" onclick="startGame('easy')">Apprentice</button>
+                <button style="width:100%; margin-bottom:15px;" onclick="startGame('medium')">Strategist</button>
+                <button style="width:100%;" onclick="startGame('hard')">Grandmaster</button>
+                <div class="switch-mode" onclick="switchView('calc')">Return to Core</div>
             </div>
 
-            <div id="play-view" style="display:none;">
-                <div id="stat-bar" style="text-align:center; font-size:0.7rem; color:var(--text-dim); letter-spacing:2px;">STAGE 1 OF 10</div>
-                <div class="question-box" id="q-display">0 + 0</div>
-                <input type="number" class="input-luxe" id="ans-input" placeholder="?">
-                <div id="msg" style="text-align:center; min-height:25px; margin-bottom:20px; font-weight:600; font-size:0.9rem;"></div>
-                <button class="btn-action" onclick="verify()">CONFIRM</button>
+            <div id="game-play" style="display:none;">
+                <div class="q-text" id="q-label">EQUATION</div>
+                <div id="question" style="font-size: 2.5rem; text-align: center; font-weight: 700; margin-bottom: 20px;">12 + 45</div>
+                <input type="number" class="ans-input" id="game-input" placeholder="00">
+                <div id="feedback" style="text-align:center; letter-spacing:2px; font-size:0.8rem; min-height:20px; margin-bottom:20px;"></div>
+                <button class="btn-eq" onclick="checkAnswer()">VERIFY</button>
             </div>
         </div>
     </div>
 
 <script>
-    // --- LUXURY AURA TRACKING ---
-    const aura = document.getElementById('aura');
+    const aura = document.getElementById('cursor-aura');
     document.addEventListener('mousemove', (e) => {
         aura.style.left = e.clientX + 'px';
         aura.style.top = e.clientY + 'px';
     });
 
-    // --- NAVIGATION ENGINE ---
-    function route(to) {
-        const calc = document.getElementById('calc-ui');
-        const game = document.getElementById('game-ui');
-        if(to === 'game') {
-            calc.classList.replace('page-show', 'page-hide');
-            setTimeout(() => game.classList.replace('page-hide', 'page-show'), 400);
+    function switchView(target) {
+        const calc = document.getElementById('calc-section');
+        const game = document.getElementById('game-section');
+        if(target === 'game') {
+            calc.className = 'glass-card hidden';
+            setTimeout(() => game.className = 'glass-card visible', 600);
         } else {
-            game.classList.replace('page-show', 'page-hide');
-            setTimeout(() => calc.classList.replace('page-hide', 'page-show'), 400);
+            game.className = 'glass-card hidden';
+            setTimeout(() => calc.className = 'glass-card visible', 600);
         }
     }
 
-    // --- CALCULATOR ENGINE ---
-    let expression = "";
-    function press(v) { expression += v; document.getElementById('input-preview').innerText = expression; }
-    function clearScr() { expression = ""; document.getElementById('input-preview').innerText = ""; document.getElementById('main-output').innerText = "0"; }
-    function exec() {
+    function addChar(c) { document.getElementById('input').value += c; }
+    function clearAll() { document.getElementById('input').value = ''; document.getElementById('result').innerText = '0'; }
+    function calculate() {
         try {
-            const res = math.evaluate(expression);
-            document.getElementById('main-output').innerText = Number.isInteger(res) ? res : res.toFixed(3);
-        } catch { document.getElementById('main-output').innerText = "Error"; }
+            const res = math.evaluate(document.getElementById('input').value);
+            document.getElementById('result').innerText = Number(res.toFixed(2));
+        } catch(e) { document.getElementById('result').innerText = "NaN"; }
     }
 
-    // --- GAME ENGINE ---
-    let state = { lv: '', step: 1, limit: 10, target: 0 };
-
-    function initGame(lv) {
-        state.lv = lv; state.step = 1;
-        document.getElementById('menu-view').style.display = 'none';
-        document.getElementById('play-view').style.display = 'block';
-        nextQ();
+    let gState = { ans: 0, cur: 1 };
+    function startGame(lvl) {
+        document.getElementById('game-menu').style.display = 'none';
+        document.getElementById('game-play').style.display = 'block';
+        genQ();
     }
 
-    function nextQ() {
-        let x = math.randomInt(2, 20), y = math.randomInt(2, 20);
-        let q = `${x} + ${y}`; state.target = x + y;
-        
-        if(state.lv === 'medium') { x = math.randomInt(4, 12); y = math.randomInt(5, 15); q = `${x} × ${y}`; state.target = x * y; }
-        if(state.lv === 'hard') { x = math.randomInt(3, 10); q = `x + ${x} = ${x*3}, x?`; state.target = x*2; }
-        
-        document.getElementById('q-display').innerText = q;
-        document.getElementById('stat-bar').innerText = `STAGE ${state.step} OF ${state.limit}`;
-        document.getElementById('ans-input').value = "";
-        document.getElementById('msg').innerText = "";
+    function genQ() {
+        let x = math.randomInt(10, 50), y = math.randomInt(10, 50);
+        document.getElementById('question').innerText = `${x} + ${y}`;
+        gState.ans = x + y;
+        document.getElementById('game-input').value = '';
+        document.getElementById('feedback').innerText = '';
     }
 
-    function verify() {
-        const val = document.getElementById('ans-input').value;
-        const msg = document.getElementById('msg');
-        if(val == state.target) {
-            msg.innerText = "LU KEREN!!!"; msg.style.color = 'var(--success)';
-            setTimeout(() => {
-                if(state.step < state.limit) { state.step++; nextQ(); }
-                else { alert("CHAMPION!"); exitGame(); }
-            }, 800);
+    function checkAnswer() {
+        const u = document.getElementById('game-input').value;
+        const f = document.getElementById('feedback');
+        if(u == gState.ans) {
+            f.innerText = "LU KEREN!"; f.style.color = "#34d399";
+            setTimeout(() => { if(gState.cur < 10) { gState.cur++; genQ(); } else { location.reload(); }}, 1000);
         } else {
-            msg.innerText = "COBA LAGI, YA CUY!"; msg.style.color = 'var(--error)';
+            f.innerText = "COBA LAGI, BRE"; f.style.color = "#fb7185";
         }
-    }
-
-    function exitGame() {
-        document.getElementById('menu-view').style.display = 'block';
-        document.getElementById('play-view').style.display = 'none';
-        route('calc');
     }
 </script>
 </body>
